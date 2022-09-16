@@ -33,7 +33,7 @@ def my_dagster_project():
             {"s3_bucket": "sirius-dagster", "s3_prefix": s3_prefix}
         ),
         "s3": s3_resource.configured(
-            {"endpoint_url": "obs.ap-southeast-2.myhuaweicloud.com"}
+            {"endpoint_url": "http://obs.ap-southeast-2.myhuaweicloud.com"}
         ),
     }
 
