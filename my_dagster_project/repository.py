@@ -26,22 +26,25 @@ def my_dagster_project():
     #     s3_prefix = f"MY_S3_PREFIX/branch_{os.getenv('DAGSTER_CLOUD_PULL_REQUEST_ID')}"
     # else:
     #     s3_prefix = "MY_S3_PREFIX"
-    #
-    # resource_defs = {
-    #     "io_manager": s3_pickle_io_manager.configured(
-    #         {"s3_bucket": "MY_S3_BUCKET", "s3_prefix": s3_prefix}
-    #     ),
-    #     "s3": s3_resource,
-    # }
-    #
-    # return [
-    #     *with_resources(
-    #         definitions=load_assets_from_package_module(assets), resource_defs=resource_defs
-    #     ),
-    #     define_asset_job(name="all_assets_job"),
-    # ]
+
+    s3_prefix = "test"
+    resource_defs = {
+        "io_manager": s3_pickle_io_manager.configured(
+            {"s3_bucket": "sirius-dagster", "s3_prefix": s3_prefix}
+        ),
+        "s3": s3_resource.configured(
+            {"endpoint_url": "obs.ap-southeast-2.myhuaweicloud.com"}
+        ),
+    }
 
     return [
-        load_assets_from_package_module(assets),
+        *with_resources(
+            definitions=load_assets_from_package_module(assets), resource_defs=resource_defs
+        ),
         define_asset_job(name="all_assets_job"),
     ]
+
+    # return [
+    #     load_assets_from_package_module(assets),
+    #     define_asset_job(name="all_assets_job"),
+    # ]
