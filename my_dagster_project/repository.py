@@ -29,7 +29,7 @@ def my_dagster_project():
 
     s3_prefix = "test"
     resource_defs = {
-        "io_manager": s3_pickle_io_manager.configured(
+        "s3_io_manager": s3_pickle_io_manager.configured(
             {"s3_bucket": "sirius-dagster", "s3_prefix": s3_prefix}
         ),
         "s3": s3_resource.configured(
