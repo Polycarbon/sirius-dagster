@@ -12,6 +12,8 @@ def cereals():
     logger.debug(os.getenv("AWS_ACCESS_KEY_ID","NO NAME"))
     logger.debug(os.getenv("AWS_SECRET_ACCESS_KEY", "NO NAME"))
     logger.debug(os.getenv("DAGSTER_CLOUD_URL", "NO NAME"))
+    for name, value in os.environ.items():
+        logger.debug("{0}: {1}".format(name, value))
 
     response = requests.get("https://docs.dagster.io/assets/cereal.csv")
     lines = response.text.split("\n")
