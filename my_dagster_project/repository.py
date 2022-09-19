@@ -27,14 +27,14 @@ def my_dagster_project():
     # else:
     #     s3_prefix = "MY_S3_PREFIX"
 
-    s3_prefix = "test"
+    s3_prefix = "storage"
     resource_defs = {
         "io_manager": s3_pickle_io_manager.configured(
             {"s3_bucket": "sirius-dagster", "s3_prefix": s3_prefix}
-        ),
-        "s3": s3_resource.configured(
-            {"endpoint_url": "http://obs.ap-southeast-2.myhuaweicloud.com"}
-        ),
+        )
+        # "s3": s3_resource.configured(
+        #     {"endpoint_url": "http://obs.ap-southeast-2.myhuaweicloud.com"}
+        # ),
     }
 
     return [

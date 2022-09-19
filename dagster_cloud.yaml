@@ -2,3 +2,7 @@ locations:
   - location_name: example_location
     code_source:
       package_name: my_dagster_project
+resources:
+  s3:
+    config:
+      endpoint_url: "obs.ap-southeast-2.myhuaweicloud.com"
