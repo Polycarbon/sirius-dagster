@@ -1,4 +1,4 @@
 locations:
-  - location_name: example_location
+  - location_name: siriustech
     code_source:
       package_name: sirius_datateam
