@@ -7,7 +7,7 @@ from sirius_datateam import assets
 
 
 @repository
-def my_dagster_project():
+def sirius_datateam():
     # When you define a downstream asset that depends on another asset, to take advantage of Dagster's
     # incremental re-execution functionality (e.g. retry from failure), you'll need to set up an IO
     # manager that can move the data across runs. Learn more at https://docs.dagster.io/concepts/io-management/io-managers#applying-io-managers-to-assets
