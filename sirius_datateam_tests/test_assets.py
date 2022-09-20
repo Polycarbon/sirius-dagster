@@ -1,4 +1,4 @@
-from my_dagster_project.assets import nabisco_cereals
+from sirius_datateam.assets import nabisco_cereals
 
 
 def test_nabisco_cereals():
