@@ -1,8 +1,8 @@
 import requests
-from dagster import asset, get_dagster_logger
+from dagster import asset, get_dagster_logger, op, job
 
 
-@asset
+@op
 def get_token():
     logger = get_dagster_logger()
     url_to_get_token = "https://iam.myhuaweicloud.com/v3/auth/tokens"
@@ -36,7 +36,7 @@ def get_token():
     return requests.post(url_to_get_token, headers=headers_get_token, data=payload.__str__())
 
 
-@asset
+@op
 def get_all_resources(get_token):
     headers_get_data = {
         "X-Auth-Token": "{0}".format(get_token.headers["X-Subject-Token"])
@@ -48,3 +48,14 @@ def get_all_resources(get_token):
 
     return resources
 
+
+@job
+def hwc_resource_ingest():
+    get_all_resources(get_token())
+
+#
+# if __name__ == '__main__':
+#     res = get_token()
+#
+#     data = get_all_resources(res)
+#     print(res)
