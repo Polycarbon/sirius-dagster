@@ -2,7 +2,8 @@ from dagster import define_asset_job, load_assets_from_package_module, repositor
 from dagster_aws.s3 import s3_pickle_io_manager, s3_resource
 
 from sirius_datateam import assets
-from sirius_datateam.jobs import my_schedule, hwc_resource_ingest
+from sirius_datateam.assets import  huawei_cloud_assets
+from sirius_datateam.jobs import huawei_job
 
 
 @repository
@@ -35,20 +36,21 @@ def sirius_datateam():
             {"endpoint_url": "http://obs.ap-southeast-2.myhuaweicloud.com"}
         ),
     }
+    all_assets = [*huawei_cloud_assets]
     all_jobs = [
-        my_schedule,
-        hwc_resource_ingest
+        huawei_job
     ]
     return [
-        *with_resources(
-            definitions=load_assets_from_package_module(assets), resource_defs=resource_defs
+        with_resources(
+            definitions=all_assets, resource_defs=resource_defs
         ),
         # define_asset_job(name="all_assets_job"),
         *all_jobs
-
     ]
 
     # return [
     #     load_assets_from_package_module(assets),
     #     define_asset_job(name="all_assets_job"),
     # ]
+if __name__ == '__main__':
+    sirius_datateam()
