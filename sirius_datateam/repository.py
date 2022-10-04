@@ -42,7 +42,7 @@ def sirius_datateam():
         *with_resources(
             definitions=load_assets_from_package_module(assets), resource_defs=resource_defs
         ),
-        define_asset_job(name="all_assets_job"),
+        # define_asset_job(name="all_assets_job"),
         *all_jobs
 
     ]
