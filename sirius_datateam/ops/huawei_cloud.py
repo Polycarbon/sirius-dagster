@@ -1,3 +1,5 @@
+import json
+import os.path
 import uuid
 
 import requests
@@ -65,16 +67,24 @@ def get_all_resources(token):
     return resources_generator()
 
 @op
-def write_s3(out_resources):
+def to_json_file(hwc_resources):
     """write content to s3"""
     logger = get_dagster_logger()
-    logger.debug(out_resources)
-    logger.debug(len(out_resources))
-    return len(out_resources)
+    _uuid = uuid.uuid4().hex
+    with open(f"{_uuid}.json", "w") as file:
+        json.dump(hwc_resources, file)
+    logger.debug(_uuid)
+    return f"{_uuid}.json"
 
+@op
+def upload_s3(context, file_name):
+    """write content to s3"""
+    logger = get_dagster_logger()
+    os.path.exists(file_name)
+    logger.debug(f"{file_name} : is {os.path.exists(file_name)}")
 
 
 if __name__ == '__main__':
     obj = get_all_resources(get_token())
-    result = obj.map(write_s3)
+    result = next(obj)
     print(result)
