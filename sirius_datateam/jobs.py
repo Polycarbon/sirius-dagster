@@ -1,4 +1,4 @@
-from dagster import job, schedule, build_schedule_context, define_asset_job, AssetSelection
+from dagster import job, schedule, build_schedule_context, define_asset_job, AssetSelection, get_dagster_logger
 
 from sirius_datateam.assets import HUAWEI_CLOUD
 from sirius_datateam.ops.cereal import hello_cereal, download_cereals, display_results, find_highest_calorie_cereal, \
@@ -28,9 +28,12 @@ def complex_job():
 @job
 def hwc_resource_ingest():
     """Example of a more complex Dagster job."""
+    logger = get_dagster_logger()
     token = get_token()
     resource_gen = get_all_resources(token)
-    resource_gen.map(write_s3)
+    result = resource_gen.map(write_s3)
+    r = result.collect()
+    logger.debug(r)
 
 
 @schedule(

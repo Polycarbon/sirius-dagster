@@ -68,7 +68,8 @@ def get_all_resources(token):
 def write_s3(out_resources):
     """write content to s3"""
     logger = get_dagster_logger()
-    logger.info(len(out_resources))
+    logger.debug(out_resources)
+    logger.debug(len(out_resources))
     return len(out_resources)
 
 
