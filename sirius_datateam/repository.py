@@ -2,6 +2,7 @@ from dagster import define_asset_job, load_assets_from_package_module, repositor
 from dagster_aws.s3 import s3_pickle_io_manager, s3_resource
 
 from sirius_datateam import assets
+from sirius_datateam.jobs import my_schedule
 
 
 @repository
@@ -34,12 +35,15 @@ def sirius_datateam():
             {"endpoint_url": "http://obs.ap-southeast-2.myhuaweicloud.com"}
         ),
     }
-
+    all_jobs = [
+        my_schedule
+    ]
     return [
         *with_resources(
             definitions=load_assets_from_package_module(assets), resource_defs=resource_defs
         ),
         define_asset_job(name="all_assets_job"),
+        *all_jobs
 
     ]
 
