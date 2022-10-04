@@ -72,7 +72,7 @@ def upload_s3_a(context, to_json_a):
         # Upload the file
     s3_client = context.resources.s3
     try:
-        response = s3_client.upload_file("resources.json", "storage", object_name)
+        response = s3_client.upload_file("resources.json", "sirius-dagster", object_name)
         logger.debug(response)
     except Exception as e:
         logger.error(e)
