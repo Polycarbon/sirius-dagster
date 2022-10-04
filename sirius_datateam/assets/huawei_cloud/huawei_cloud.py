@@ -53,7 +53,7 @@ def get_all_resources_a(get_token_a):
 @asset
 def to_json_a(get_all_resources_a):
     logger = get_dagster_logger()
-    return json.dump(get_all_resources_a)
+    return json.dumps(get_all_resources_a)
 
 # @job
 # def hwc_resource_ingest():
