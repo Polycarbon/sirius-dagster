@@ -1,3 +1,5 @@
+import json
+
 import requests
 from dagster import asset, get_dagster_logger, op, job
 
@@ -48,6 +50,10 @@ def get_all_resources_a(get_token_a):
 
     return resources
 
+@asset
+def to_json_a(get_all_resources_a):
+    logger = get_dagster_logger()
+    return json.dump(get_all_resources_a)
 
 # @job
 # def hwc_resource_ingest():
