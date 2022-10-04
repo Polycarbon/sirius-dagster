@@ -37,11 +37,11 @@ def get_token_a():
 
 
 @asset
-def get_all_resources_a(get_token):
+def get_all_resources_a(get_token_a):
     headers_get_data = {
-        "X-Auth-Token": "{0}".format(get_token.headers["X-Subject-Token"])
+        "X-Auth-Token": "{0}".format(get_token_a.headers["X-Subject-Token"])
     }
-    domain_id = get_token.json()["token"]["domain"]["id"]
+    domain_id = get_token_a.json()["token"]["domain"]["id"]
     url_path_get_data = f"https://rms.myhuaweicloud.com/v1/resource-manager/domains/{domain_id}/all-resources"
     response = requests.get(url_path_get_data, headers=headers_get_data)
     resources = response.json()["resources"]
