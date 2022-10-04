@@ -3,7 +3,7 @@ from dagster import asset, get_dagster_logger, op, job
 
 
 @asset
-def get_token():
+def get_token_a():
     logger = get_dagster_logger()
     url_to_get_token = "https://iam.myhuaweicloud.com/v3/auth/tokens"
     headers_get_token = {'Content-Type': 'application/json;charset=utf8'}
@@ -37,7 +37,7 @@ def get_token():
 
 
 @asset
-def get_all_resources(get_token):
+def get_all_resources_a(get_token):
     headers_get_data = {
         "X-Auth-Token": "{0}".format(get_token.headers["X-Subject-Token"])
     }
