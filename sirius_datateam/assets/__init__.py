@@ -2,22 +2,11 @@ import csv
 import os
 
 import requests
-from dagster import asset, get_dagster_logger
+from dagster import asset, get_dagster_logger, load_assets_from_package_module
 
+from sirius_datateam.assets import cereal
 
-@asset
-def cereals():
-    logger = get_dagster_logger()
-    logger.debug(os.getenv("AWS_ACCESS_KEY_ID","NO NAME"))
-    logger.debug(os.getenv("AWS_SECRET_ACCESS_KEY", "NO NAME"))
-    response = requests.get("https://docs.dagster.io/assets/cereal.csv")
-    lines = response.text.split("\n")
-    cereal_rows = [row for row in csv.DictReader(lines)]
-
-    return cereal_rows
-
-
-@asset
-def nabisco_cereals(cereals):
-    """Cereals manufactured by Nabisco"""
-    return [row for row in cereals if row["mfr"] == "N"]
+CEREAL = "cereal"
+cereal_assets = load_assets_from_package_module(
+    package_module=cereal, group_name=CEREAL
+)
