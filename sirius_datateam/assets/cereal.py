@@ -10,7 +10,7 @@ from dagster import asset, get_dagster_logger
 from sirius_datateam.ops.cereal import CEREAL_URL
 
 
-@asset(group_name="cereals")
+@asset
 def cereals() -> List[dict]:
     """Example of a Dagster asset represents a list of cereal dicts."""
     response = requests.get(CEREAL_URL, timeout=30)
@@ -20,7 +20,7 @@ def cereals() -> List[dict]:
     return cereal_list
 
 
-@asset(group_name="cereals")
+@asset
 def highest_calorie_cereal(cereals: List[dict]) -> str:
     """Example of a Dagster asset that represents the highest calorie cereal."""
     sorted_by_calorie = list(sorted(cereals, key=lambda cereal: cereal["calories"]))
@@ -30,7 +30,7 @@ def highest_calorie_cereal(cereals: List[dict]) -> str:
     return sorted_by_calorie[-1]["name"]
 
 
-@asset(group_name="cereals")
+@asset
 def highest_protein_cereal(cereals: List[dict]) -> str:
     """Example of a Dagster asset that represents the highest protein cereal."""
     sorted_by_protein = list(sorted(cereals, key=lambda cereal: cereal["protein"]))

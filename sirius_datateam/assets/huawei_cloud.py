@@ -2,7 +2,7 @@ import requests
 from dagster import asset, get_dagster_logger, op, job
 
 
-@asset(group_name="huawei_cloud")
+@asset
 def get_token():
     logger = get_dagster_logger()
     url_to_get_token = "https://iam.myhuaweicloud.com/v3/auth/tokens"
@@ -36,7 +36,7 @@ def get_token():
     return requests.post(url_to_get_token, headers=headers_get_token, data=payload.__str__())
 
 
-@asset(group_name="huawei_cloud")
+@asset
 def get_all_resources(token):
     headers_get_data = {
         "X-Auth-Token": "{0}".format(token.headers["X-Subject-Token"])

@@ -43,7 +43,6 @@ def sirius_datateam():
             definitions=load_assets_from_package_module(assets), resource_defs=resource_defs
         ),
         define_asset_job(name="all_assets_job"),
-        hwc_resource_ingest
 
     ]
 
