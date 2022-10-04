@@ -58,7 +58,9 @@ def to_json_a(get_all_resources_a):
     logger = get_dagster_logger()
     _uuid = uuid.uuid4().hex
     with open(f"resources.json", "w") as file:
-        json.dump(get_all_resources_a, file)
+        for dic in get_all_resources_a:
+            json.dump(dic, file)
+            file.write("\n")
     return f"resources.json"
 
 
@@ -71,12 +73,9 @@ def upload_s3_a(context, to_json_a):
 
         # Upload the file
     s3_client = context.resources.s3
-    try:
-        response = s3_client.upload_file("resources.json", "sirius-dagster", object_name)
-        logger.debug(response)
-    except Exception as e:
-        logger.error(e)
-        return False
+    response = s3_client.upload_file("resources.json", "sirius-dagster", object_name)
+    logger.debug(response)
+
     return True
 
 # @job
