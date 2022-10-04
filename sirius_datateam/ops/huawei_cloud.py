@@ -1,3 +1,5 @@
+import uuid
+
 import requests
 from dagster import op, get_dagster_logger, DynamicOut, DynamicOutput
 
@@ -57,13 +59,14 @@ def get_all_resources(token):
         resources = response["resources"]
         # count = response["page_info"]["current_count"]
         next_maker = response["page_info"]["next_marker"]
-        yield DynamicOutput(resources, marker)
+        yield DynamicOutput(resources, uuid.uuid4().hex)
         yield from resources_generator(next_maker)
         # return resources, next_maker
     return resources_generator()
 
 @op
 def write_s3(out_resources):
+    """write content to s3"""
     logger = get_dagster_logger()
     logger.info(len(out_resources))
     return len(out_resources)
