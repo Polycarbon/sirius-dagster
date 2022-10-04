@@ -1,4 +1,6 @@
 import json
+import os
+import uuid
 
 import requests
 from dagster import asset, get_dagster_logger, op, job
@@ -50,10 +52,32 @@ def get_all_resources_a(get_token_a):
 
     return resources
 
+
 @asset
 def to_json_a(get_all_resources_a):
     logger = get_dagster_logger()
-    return json.dumps(get_all_resources_a)
+    _uuid = uuid.uuid4().hex
+    with open(f"resources.json", "w") as file:
+        json.dump(get_all_resources_a, file)
+    return f"resources.json"
+
+
+@asset(required_resource_keys={"s3"})
+def upload_s3_a(context, to_json_a):
+    logger = get_dagster_logger()
+    context.resources.s3
+
+    object_name = os.path.basename(to_json_a)
+
+        # Upload the file
+    s3_client = context.resources.s3
+    try:
+        response = s3_client.upload_file("resources.json", "storage", object_name)
+        logger.debug(response)
+    except Exception as e:
+        logger.error(e)
+        return False
+    return True
 
 # @job
 # def hwc_resource_ingest():
