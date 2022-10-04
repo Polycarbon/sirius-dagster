@@ -7,7 +7,7 @@ from dagster import asset, get_dagster_logger
 
 
 # pylint: disable=redefined-outer-name
-from sirius_datateam.ops.cereal import CEREAL_URL
+CEREAL_URL = "https://docs.dagster.io/assets/cereal.csv"
 
 
 @asset
