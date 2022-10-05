@@ -33,8 +33,8 @@ def complex_job():
 })
 def hwc_resource_ingest():
     """Example of a more complex Dagster job."""
-    acc_generator = huawei_cloud_accounts()
-    tokens = acc_generator.map(get_token)
+    accounts = huawei_cloud_accounts()
+    tokens = get_token(accounts)
     resources_paths = tokens.map(get_all_resources)
     resources_paths.map(upload_s3)
     # print(resources_paths)

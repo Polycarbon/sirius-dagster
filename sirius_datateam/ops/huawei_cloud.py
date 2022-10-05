@@ -8,8 +8,8 @@ from dagster import op, get_dagster_logger, DynamicOut, DynamicOutput, Failure, 
 from requests import Response
 
 
-@op(out=DynamicOut())
-def huawei_cloud_accounts() -> Tuple[str, str]:
+@op
+def huawei_cloud_accounts() -> List[Tuple[str, str]]:
     accounts = [("hwc11429999", "oF3Zx2dQh3hKmmH"),
                 ("hwc20469750", "i7pnJXV2mmy24WK"),
                 ("hwc69656941", "C6ENPs7aiZTyGP8"),
@@ -20,14 +20,11 @@ def huawei_cloud_accounts() -> Tuple[str, str]:
                 ("StarkCloud", "3Ch3F3kgGJnpaSGqhqj")]
 
     # accounts = [("hwc55590589", "5QHQjeugqgHsKUW")]
-    for acc in accounts:
-        acc_name, _ = acc
-        key_idx = acc_name.replace(" ", "").replace("-", "_")
-        yield DynamicOutput(acc, key_idx)
+    return accounts
 
 
-@op
-def get_token(account) -> Response:
+@op(out=DynamicOut())
+def get_token(accounts: List[Tuple[str, str]]) -> Response:
     """get api token by username password"""
     logger = get_dagster_logger()
     url_to_get_token = "https://iam.myhuaweicloud.com/v3/auth/tokens"
@@ -55,26 +52,27 @@ def get_token(account) -> Response:
             }
         }
     }
-    hwc_name, hwc_password = account
+    for account in accounts:
+        hwc_name, hwc_password = account
 
-    payload = payload.__str__().replace("HWC_NAME", hwc_name)
-    payload = payload.__str__().replace("HWC_PASSWORD", hwc_password)
+        payload = payload.__str__().replace("HWC_NAME", hwc_name)
+        payload = payload.__str__().replace("HWC_PASSWORD", hwc_password)
 
-    response = requests.post(url_to_get_token, headers=headers_get_token, data=payload)
-    if response.ok:
-        return response
-    else:
-        logger.error(f"{hwc_name} : {response.text}")
-        raise Failure(
-            description=f"{response.text}",
-            metadata={
-                "hwc_account": MetadataValue.text(hwc_name)
-            },
-        )
+        response = requests.post(url_to_get_token, headers=headers_get_token, data=payload)
+        if response.ok:
+            yield DynamicOutput(response, hwc_name.replace("-", "_"))
+        else:
+            logger.error(f"{hwc_name} : {response.text}")
+            raise Failure(
+                description=f"{response.text}",
+                metadata={
+                    "hwc_account": MetadataValue.text(hwc_name)
+                },
+            )
 
 
 @op
-def get_all_resources(token) -> List[str]:
+def get_all_resources(token: Response) -> List[str]:
     """query all resources under huawei account"""
     headers_get_data = {
         "X-Auth-Token": "{0}".format(token.headers["X-Subject-Token"])
@@ -118,7 +116,7 @@ def to_json_file(context, hwc_resources):
 
 
 @op(required_resource_keys={"s3"})
-def upload_s3(context, files):
+def upload_s3(context, files: List[str]):
     """upload content to s3"""
     logger = get_dagster_logger()
     s3_client = context.resources.s3
