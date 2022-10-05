@@ -118,15 +118,15 @@ def to_json_file(context, hwc_resources):
 
 
 @op(required_resource_keys={"s3"})
-def upload_s3(context, acc_files_list):
+def upload_s3(context, files):
     """upload content to s3"""
     logger = get_dagster_logger()
     s3_client = context.resources.s3
-    for files in acc_files_list:
-        for file_name in files:
-            object_name = os.path.basename(file_name)
-            # Upload the file
-            s3_client.upload_file(object_name, "sirius-dagster", f"hwc/resources/{file_name}")
+
+    for file_name in files:
+        object_name = os.path.basename(file_name)
+        # Upload the file
+        s3_client.upload_file(object_name, "sirius-dagster", f"hwc/resources/{file_name}")
 
 
 if __name__ == '__main__':
