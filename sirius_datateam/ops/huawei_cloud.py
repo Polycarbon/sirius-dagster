@@ -1,13 +1,33 @@
 import json
 import os.path
 import uuid
+from typing import Tuple, List
 
 import requests
-from dagster import op, get_dagster_logger, DynamicOut, DynamicOutput
+from dagster import op, get_dagster_logger, DynamicOut, DynamicOutput, Failure, MetadataValue
+from requests import Response
+
+
+@op(out=DynamicOut())
+def huawei_cloud_accounts() -> Tuple[str, str]:
+    accounts = [("hwc11429999", "oF3Zx2dQh3hKmmH"),
+                ("hwc20469750", "i7pnJXV2mmy24WK"),
+                ("hwc69656941", "C6ENPs7aiZTyGP8"),
+                ("hwc55590589", "5QHQjeugqgHsKUW"),
+                ("Sirius-Datateam", "Sy849uSGLtoNujt"),
+                ("CGS-TRADE-PROD", "6ojMAmx5yXquxkzbTnP"),
+                ("sirius-press", "jX25TMyEXhD8PQByfAk"),
+                ("StarkCloud", "3Ch3F3kgGJnpaSGqhqj")]
+
+    # accounts = [("hwc55590589", "5QHQjeugqgHsKUW")]
+    for acc in accounts:
+        acc_name, _ = acc
+        key_idx = acc_name.replace(" ", "").replace("-", "_")
+        yield DynamicOutput(acc, key_idx)
 
 
 @op
-def get_token():
+def get_token(account) -> Response:
     """get api token by username password"""
     logger = get_dagster_logger()
     url_to_get_token = "https://iam.myhuaweicloud.com/v3/auth/tokens"
@@ -21,34 +41,47 @@ def get_token():
                 "password": {
                     "user": {
                         "name": "sirius_api",
-                        "password": "oF3Zx2dQh3hKmmH",
+                        "password": "HWC_PASSWORD",
                         "domain": {
-                            "name": "hwc11429999"
+                            "name": "HWC_NAME"
                         }
                     }
                 }
             },
             "scope": {
                 "domain": {
-                    "name": "hwc11429999"
+                    "name": "HWC_NAME"
                 }
             }
         }
     }
-    # payload = payload.replace("hwc_pass_replace", "Sirius-Datateam")
-    # payload = payload.replace("hwc_acc_replace", "Sy849uSGLtoNujt")
+    hwc_name, hwc_password = account
 
-    return requests.post(url_to_get_token, headers=headers_get_token, data=payload.__str__())
+    payload = payload.__str__().replace("HWC_NAME", hwc_name)
+    payload = payload.__str__().replace("HWC_PASSWORD", hwc_password)
+
+    response = requests.post(url_to_get_token, headers=headers_get_token, data=payload)
+    if response.ok:
+        return response
+    else:
+        logger.error(f"{hwc_name} : {response.text}")
+        raise Failure(
+            description=f"{response.text}",
+            metadata={
+                "hwc_account": MetadataValue.text(hwc_name)
+            },
+        )
 
 
-@op(out=DynamicOut())
-def get_all_resources(token):
+@op
+def get_all_resources(token) -> List[str]:
     """query all resources under huawei account"""
     headers_get_data = {
         "X-Auth-Token": "{0}".format(token.headers["X-Subject-Token"])
     }
     domain_id = token.json()["token"]["domain"]["id"]
     base_url = f"https://rms.myhuaweicloud.com/v1/resource-manager/domains/{domain_id}/all-resources"
+    file_paths = []
 
     def resources_generator(marker="start"):
         if marker is None:
@@ -61,11 +94,16 @@ def get_all_resources(token):
         resources = response["resources"]
         # count = response["page_info"]["current_count"]
         next_maker = response["page_info"]["next_marker"]
-        yield DynamicOutput(resources, uuid.uuid4().hex)
+        key_idx = uuid.uuid4().hex
+        with open(f"{key_idx}.json", "w") as file:
+            json.dump(resources, file)
+        yield f"{key_idx}.json"
         yield from resources_generator(next_maker)
         # return resources, next_maker
 
-    return resources_generator()
+    for files in resources_generator():
+        file_paths.append(files)
+    return file_paths
 
 
 @op
@@ -80,14 +118,15 @@ def to_json_file(context, hwc_resources):
 
 
 @op(required_resource_keys={"s3"})
-def upload_s3(context, file_name):
+def upload_s3(context, acc_files_list):
     """upload content to s3"""
     logger = get_dagster_logger()
-    object_name = os.path.basename(file_name)
-    # Upload the file
     s3_client = context.resources.s3
-    response = s3_client.upload_file(f"{file_name}", "sirius-dagster", object_name)
-    logger.debug(response)
+    for files in acc_files_list:
+        for file_name in files:
+            object_name = os.path.basename(file_name)
+            # Upload the file
+            s3_client.upload_file(object_name, "sirius-dagster", f"hwc/resources/{file_name}")
 
 
 if __name__ == '__main__':

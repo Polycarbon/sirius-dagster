@@ -1,5 +1,5 @@
 from dagster import define_asset_job, load_assets_from_package_module, repository, with_resources, AssetsDefinition
-from dagster_aws.s3 import s3_pickle_io_manager, s3_resource
+from dagster_aws.s3 import s3_pickle_io_manager, s3_resource, s3_file_manager
 
 from sirius_datateam import assets
 from sirius_datateam.assets import  huawei_cloud_assets

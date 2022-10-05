@@ -3,7 +3,8 @@ from dagster_aws.s3 import s3_pickle_io_manager, s3_resource
 from sirius_datateam.assets import HUAWEI_CLOUD
 from sirius_datateam.ops.cereal import hello_cereal, download_cereals, display_results, find_highest_calorie_cereal, \
     find_highest_protein_cereal
-from sirius_datateam.ops.huawei_cloud import get_token, get_all_resources, to_json_file, upload_s3
+from sirius_datateam.ops.huawei_cloud import get_token, get_all_resources, to_json_file, upload_s3, \
+    huawei_cloud_accounts
 
 huawei_job = define_asset_job(
         "huawei_cloud_ingestion",
@@ -32,10 +33,13 @@ def complex_job():
 })
 def hwc_resource_ingest():
     """Example of a more complex Dagster job."""
-    token = get_token()
-    resource_gen = get_all_resources(token)
-    path_result = resource_gen.map(to_json_file)
-    path_result.map(upload_s3)
+    acc_generator = huawei_cloud_accounts()
+    tokens = acc_generator.map(get_token)
+    resources_paths = tokens.map(get_all_resources).collect()
+    upload_s3(resources_paths)
+    # print(resources_paths)
+    # path_result = resource_gen.map(to_json_file)
+    # path_result.map(upload_s3)
 
 
 @schedule(
