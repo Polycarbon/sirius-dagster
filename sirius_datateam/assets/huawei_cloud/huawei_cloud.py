@@ -67,10 +67,7 @@ def to_json_a(get_all_resources_a):
 @asset(required_resource_keys={"s3"})
 def upload_s3_a(context, to_json_a):
     logger = get_dagster_logger()
-    context.resources.s3
-
     object_name = os.path.basename(to_json_a)
-
         # Upload the file
     s3_client = context.resources.s3
     response = s3_client.upload_file("resources.json", "sirius-dagster", object_name)

@@ -1,4 +1,4 @@
-from dagster import define_asset_job, load_assets_from_package_module, repository, with_resources
+from dagster import define_asset_job, load_assets_from_package_module, repository, with_resources, AssetsDefinition
 from dagster_aws.s3 import s3_pickle_io_manager, s3_resource
 
 from sirius_datateam import assets
@@ -48,7 +48,7 @@ def sirius_datateam():
             definitions=all_assets, resource_defs=resource_defs
         ),
         # define_asset_job(name="all_assets_job"),
-        *all_jobs
+        all_jobs
     ]
 
     # return [

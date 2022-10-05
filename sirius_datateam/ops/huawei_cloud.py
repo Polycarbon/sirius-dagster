@@ -56,7 +56,7 @@ def get_all_resources(token):
         if marker == "start":
             url = base_url
         else:
-            url = base_url+f"?marker={marker}"
+            url = base_url + f"?marker={marker}"
         response = requests.get(url, headers=headers_get_data).json()
         resources = response["resources"]
         # count = response["page_info"]["current_count"]
@@ -64,11 +64,13 @@ def get_all_resources(token):
         yield DynamicOutput(resources, uuid.uuid4().hex)
         yield from resources_generator(next_maker)
         # return resources, next_maker
+
     return resources_generator()
 
+
 @op
-def to_json_file(hwc_resources):
-    """write content to s3"""
+def to_json_file(context, hwc_resources):
+    """write content to json"""
     logger = get_dagster_logger()
     _uuid = uuid.uuid4().hex
     with open(f"{_uuid}.json", "w") as file:
@@ -76,12 +78,16 @@ def to_json_file(hwc_resources):
     logger.debug(_uuid)
     return f"{_uuid}.json"
 
-@op
+
+@op(required_resource_keys={"s3"})
 def upload_s3(context, file_name):
-    """write content to s3"""
+    """upload content to s3"""
     logger = get_dagster_logger()
-    os.path.exists(file_name)
-    logger.debug(f"{file_name} : is {os.path.exists(file_name)}")
+    object_name = os.path.basename(file_name)
+    # Upload the file
+    s3_client = context.resources.s3
+    response = s3_client.upload_file(f"{file_name}", "sirius-dagster", object_name)
+    logger.debug(response)
 
 
 if __name__ == '__main__':
