@@ -23,7 +23,7 @@ def huawei_cloud_accounts() -> List[Tuple[str, str]]:
     return accounts
 
 
-@op(out=DynamicOut())
+@op(out=DynamicOut(Response))
 def get_token(accounts: List[Tuple[str, str]]) -> Response:
     """get api token by username password"""
     logger = get_dagster_logger()
@@ -116,7 +116,7 @@ def to_json_file(context, hwc_resources):
 
 
 @op(required_resource_keys={"s3"})
-def upload_s3(context, files: List[str]):
+def upload_s3(context, files: List[str]) -> None:
     """upload content to s3"""
     logger = get_dagster_logger()
     s3_client = context.resources.s3
