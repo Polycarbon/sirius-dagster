@@ -10,16 +10,16 @@ from requests import Response
 
 @op
 def huawei_cloud_accounts() -> List[Tuple[str, str]]:
-    # accounts = [("hwc11429999", "oF3Zx2dQh3hKmmH"),
-    #             ("hwc20469750", "i7pnJXV2mmy24WK"),
-    #             ("hwc69656941", "C6ENPs7aiZTyGP8"),
-    #             ("hwc55590589", "5QHQjeugqgHsKUW"),
-    #             ("Sirius-Datateam", "Sy849uSGLtoNujt"),
-    #             ("CGS-TRADE-PROD", "6ojMAmx5yXquxkzbTnP"),
-    #             ("sirius-press", "jX25TMyEXhD8PQByfAk"),
-    #             ("StarkCloud", "3Ch3F3kgGJnpaSGqhqj")]
+    accounts = [("hwc11429999", "oF3Zx2dQh3hKmmH"),
+                ("hwc20469750", "i7pnJXV2mmy24WK"),
+                ("hwc69656941", "C6ENPs7aiZTyGP8"),
+                ("hwc55590589", "5QHQjeugqgHsKUW"),
+                ("Sirius-Datateam", "Sy849uSGLtoNujt"),
+                ("CGS-TRADE-PROD", "6ojMAmx5yXquxkzbTnP"),
+                ("sirius-press", "jX25TMyEXhD8PQByfAk"),
+                ("StarkCloud", "3Ch3F3kgGJnpaSGqhqj")]
 
-    accounts = [("hwc55590589", "5QHQjeugqgHsKUW")]
+    # accounts = [("hwc55590589", "5QHQjeugqgHsKUW")]
     return accounts
 
 
