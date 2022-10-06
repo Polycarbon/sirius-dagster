@@ -10,16 +10,16 @@ from requests import Response
 
 @op
 def huawei_cloud_accounts() -> List[Tuple[str, str]]:
-    accounts = [("hwc11429999", "oF3Zx2dQh3hKmmH"),
-                ("hwc20469750", "i7pnJXV2mmy24WK"),
-                ("hwc69656941", "C6ENPs7aiZTyGP8"),
-                ("hwc55590589", "5QHQjeugqgHsKUW"),
-                ("Sirius-Datateam", "Sy849uSGLtoNujt"),
-                ("CGS-TRADE-PROD", "6ojMAmx5yXquxkzbTnP"),
-                ("sirius-press", "jX25TMyEXhD8PQByfAk"),
-                ("StarkCloud", "3Ch3F3kgGJnpaSGqhqj")]
+    # accounts = [("hwc11429999", "oF3Zx2dQh3hKmmH"),
+    #             ("hwc20469750", "i7pnJXV2mmy24WK"),
+    #             ("hwc69656941", "C6ENPs7aiZTyGP8"),
+    #             ("hwc55590589", "5QHQjeugqgHsKUW"),
+    #             ("Sirius-Datateam", "Sy849uSGLtoNujt"),
+    #             ("CGS-TRADE-PROD", "6ojMAmx5yXquxkzbTnP"),
+    #             ("sirius-press", "jX25TMyEXhD8PQByfAk"),
+    #             ("StarkCloud", "3Ch3F3kgGJnpaSGqhqj")]
 
-    # accounts = [("hwc55590589", "5QHQjeugqgHsKUW")]
+    accounts = [("hwc55590589", "5QHQjeugqgHsKUW")]
     return accounts
 
 
@@ -93,9 +93,10 @@ def get_all_resources(token: Response) -> List[str]:
         # count = response["page_info"]["current_count"]
         next_maker = response["page_info"]["next_marker"]
         key_idx = uuid.uuid4().hex
-        with open(f"{key_idx}.json", "w") as file:
+        path = f"{key_idx}.json"
+        with open(path, "w") as file:
             json.dump(resources, file)
-        yield f"{key_idx}.json"
+        yield path
         yield from resources_generator(next_maker)
         # return resources, next_maker
 
@@ -115,16 +116,16 @@ def to_json_file(context, hwc_resources):
     return f"{_uuid}.json"
 
 
-@op(required_resource_keys={"s3"})
+@op(required_resource_keys={"s3"}, config_schema={"scheduled_date": str})
 def upload_s3(context, files: List[str]) -> None:
     """upload content to s3"""
     logger = get_dagster_logger()
     s3_client = context.resources.s3
-
+    scheduled_date = context.op_config["scheduled_date"]
     for file_name in files:
         object_name = os.path.basename(file_name)
         # Upload the file
-        s3_client.upload_file(object_name, "sirius-dagster", f"hwc/resources/{file_name}")
+        s3_client.upload_file(object_name, "sirius-dagster", f"hwc/resources/{scheduled_date}/{file_name}")
 
 
 if __name__ == '__main__':

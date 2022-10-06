@@ -12,7 +12,9 @@ def test_asset_with_service():
     with instance_for_test() as instance:
         assert (
             hwc_resource_ingest
-            .execute_in_process(instance=instance)
+            .execute_in_process(instance=instance,run_config={
+            "ops": {"upload_s3": {"config": {"scheduled_date": "2021-08-02"}}}
+        })
             .success
         )
 

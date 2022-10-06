@@ -3,7 +3,7 @@ from dagster_aws.s3 import s3_pickle_io_manager, s3_resource, s3_file_manager
 
 from sirius_datateam import assets
 from sirius_datateam.assets import  huawei_cloud_assets
-from sirius_datateam.jobs import huawei_job, hello_cereal_job, complex_job, hwc_resource_ingest, every_minute
+from sirius_datateam.jobs import huawei_job, hello_cereal_job, complex_job, hwc_resource_ingest, at_1am_daily
 
 
 @repository
@@ -41,7 +41,7 @@ def sirius_datateam():
         huawei_job,
         complex_job,
         hwc_resource_ingest,
-        every_minute
+        at_1am_daily
     ]
     return [
         with_resources(

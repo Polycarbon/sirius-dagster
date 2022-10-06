@@ -1,4 +1,5 @@
-from dagster import job, schedule, build_schedule_context, define_asset_job, AssetSelection, get_dagster_logger
+from dagster import job, schedule, build_schedule_context, define_asset_job, AssetSelection, get_dagster_logger, \
+    RunRequest, ScheduleEvaluationContext
 from dagster_aws.s3 import s3_pickle_io_manager, s3_resource
 from sirius_datateam.assets import HUAWEI_CLOUD
 from sirius_datateam.ops.cereal import hello_cereal, download_cereals, display_results, find_highest_calorie_cereal, \
@@ -7,9 +8,10 @@ from sirius_datateam.ops.huawei_cloud import get_token, get_all_resources, to_js
     huawei_cloud_accounts
 
 huawei_job = define_asset_job(
-        "huawei_cloud_ingestion",
-        selection=AssetSelection.groups(HUAWEI_CLOUD),
-    )
+    "huawei_cloud_ingestion",
+    selection=AssetSelection.groups(HUAWEI_CLOUD),
+)
+
 
 @job
 def hello_cereal_job():
@@ -25,6 +27,7 @@ def complex_job():
         most_calories=find_highest_calorie_cereal(cereals),
         most_protein=find_highest_protein_cereal(cereals),
     )
+
 
 @job(resource_defs={
     "s3": s3_resource.configured(
@@ -42,10 +45,13 @@ def hwc_resource_ingest():
     # path_result.map(upload_s3)
 
 
-@schedule(
-    cron_schedule="* * * * *",
-    job=hwc_resource_ingest,
-    execution_timezone="US/Central",
-)
-def every_minute():
-    return {}
+@schedule(job=hwc_resource_ingest, cron_schedule="0 1 * * *")
+def at_1am_daily(context: ScheduleEvaluationContext):
+    scheduled_date = context.scheduled_execution_time.strftime("%Y-%m-%d")
+    return RunRequest(
+        run_key=None,
+        run_config={
+            "ops": {"upload_s3": {"config": {"scheduled_date": scheduled_date}}}
+        },
+        tags={"date": scheduled_date},
+    )
