@@ -18,7 +18,7 @@ def huawei_cloud_accounts() -> List[Tuple[str, str]]:
                 ("CGS-TRADE-PROD", "6ojMAmx5yXquxkzbTnP"),
                 ("sirius-press", "jX25TMyEXhD8PQByfAk"),
                 ("StarkCloud", "3Ch3F3kgGJnpaSGqhqj")]
-
+    # why
     # accounts = [("hwc55590589", "5QHQjeugqgHsKUW")]
     return accounts
 
